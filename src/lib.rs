@@ -1298,6 +1298,22 @@ impl<T: TensorType> Tensor<T> {
         Ok(self)
     }
 
+    /// The same as with_values, but consumes an iterator.
+    pub fn with_values_iter(mut self, mut value: impl Iterator<Item=T>) -> Result<Self> {
+
+        let mut self_iter_mut = self.iter_mut();
+
+        loop {
+            match (self_iter_mut.next(), value.next()){
+                (Some(e), Some(v)) =>  e.clone_from(&v),
+                (None, None) =>  return Ok(self),
+                _ => return Err(invalid_arg!(
+                    "length of values iterator is not equal to tensor total elements ({})",
+                    self.len())),
+            };
+        }
+    }
+
     /// Set one single value on the tensor.
     ///
     /// ```
